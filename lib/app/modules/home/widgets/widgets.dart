@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -29,8 +31,9 @@ class TitleWidget extends StatelessWidget {
             onPressed: () {
               try {
                 controller.gotoPreviousPage();
-                if (controller.stateI.value > 0)
+                if (controller.stateI.value > 0) {
                   controller.stateI.value = controller.stateI.value - 1;
+                }
               } catch (e) {
                 debugPrint('Error navigating to previous page: $e');
               }

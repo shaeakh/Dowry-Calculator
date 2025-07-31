@@ -1,6 +1,5 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, avoid_print, use_build_context_synchronously
 
-import 'dart:io';
 import 'dart:math' show Random, max, pow;
 import 'dart:typed_data';
 import 'dart:ui';
@@ -8,7 +7,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:rive/rive.dart' hide Image;
 import 'package:share_plus/share_plus.dart';
 import 'package:universal_html/html.dart' as html;
@@ -448,28 +446,29 @@ class HomeController extends GetxController {
     );
   }
 
-  
+  Future<String?> saveImage(Uint8List imageBytes) async {
+    try {
+      // Create a blob from the Uint8List
+      final blob = html.Blob([imageBytes], 'image/png');
+      final url = html.Url.createObjectUrlFromBlob(blob);
 
-Future<String?> saveImage(Uint8List imageBytes) async {
-  try {
-    // Create a blob from the Uint8List
-    final blob = html.Blob([imageBytes], 'image/png');
-    final url = html.Url.createObjectUrlFromBlob(blob);
+      // Create a temporary anchor element to trigger download
+      final _ = html.AnchorElement(href: url)
+        ..setAttribute(
+          'download',
+          'dowry_poster_${DateTime.now().millisecondsSinceEpoch}.png',
+        )
+        ..click();
 
-    // Create a temporary anchor element to trigger download
-    final anchor = html.AnchorElement(href: url)
-      ..setAttribute('download', 'dowry_poster_${DateTime.now().millisecondsSinceEpoch}.png')
-      ..click();
-
-    // Clean up
-    html.Url.revokeObjectUrl(url);
-    debugPrint("Image download triggered");
-    return url; // Return the URL for potential sharing
-  } catch (e) {
-    debugPrint("Error saving image: $e");
-    return null;
+      // Clean up
+      html.Url.revokeObjectUrl(url);
+      debugPrint("Image download triggered");
+      return url; // Return the URL for potential sharing
+    } catch (e) {
+      debugPrint("Error saving image: $e");
+      return null;
+    }
   }
-}
 
   void trigger(BuildContext context) async {
     Uint8List? image = await captureArtboard(artboardKey);
