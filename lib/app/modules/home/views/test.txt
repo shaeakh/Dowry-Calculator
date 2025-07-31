@@ -1,0 +1,17 @@
+0 khali ga
+1 sada genji 
+2 khoyeri shirt 
+3 red shirt 
+
+4 black pant 
+5 sada pant 
+6 lal pant 
+
+7 moch gone
+8 moch come
+9 dari gone
+10 dari come
+11 holud juta
+12 holud juta gone
+13 car gone 
+14 car come
