@@ -1,4 +1,4 @@
-# 💍 Dowry Poster Generator – Flutter App
+# 💍 Dowry Calculator – Flutter App
 
 A playful and interactive Flutter app that calculates a fictional **dowry amount** based on user attributes and generates a **poster** using Rive animations and custom rendering.
 
