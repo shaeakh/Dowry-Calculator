@@ -1,15 +1,19 @@
 // ignore_for_file: non_constant_identifier_names, avoid_print, use_build_context_synchronously
 
-import 'dart:math' show Random, max, pow;
-import 'dart:typed_data';
+import 'dart:convert';
+import 'dart:math' show Random, pow;
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:rive/rive.dart' hide Image;
+import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:universal_html/html.dart' as html;
+
+import '../widgets/share_dl_button.dart';
 
 class HomeController extends GetxController {
   // ==================== UI Constants ====================
@@ -37,6 +41,10 @@ class HomeController extends GetxController {
   TextEditingController wealthAmount = TextEditingController();
   Rx<TextEditingController> division = TextEditingController().obs;
   Rx<TextEditingController> selfHygiene = TextEditingController().obs;
+
+  ScreenshotController screenshotController = ScreenshotController();
+  bool isCapturing = false;
+  Uint8List? capturedImage;
 
   // ==================== Page Navigation ====================
   Rx<PageController> pageController = PageController().obs;
@@ -359,72 +367,49 @@ class HomeController extends GetxController {
       context: context,
       builder: (_) => AlertDialog(
         contentPadding: EdgeInsets.zero,
-        content: SizedBox(
-          width: 400,
-          height: 660, // slightly taller to fit buttons
+        content: SingleChildScrollView(
           child: Column(
             children: [
-              Expanded(
-                flex: 4,
-                child: Image.memory(
-                  imageBytes,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                ),
-              ),
-              Container(
-                width: double.infinity,
-                color: Colors.black,
-                alignment: Alignment.center,
-                padding: const EdgeInsets.all(12),
-                child: Text(
-                  "Dowry: ৳$dowryAmount",
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+              Screenshot(
+                controller: screenshotController,
+                child: Container(
+                  color: Colors.white,
+                  width: 400,
+                  height: 660, // slightly taller to fit buttons
+                  child: Column(
+                    children: [
+                      Expanded(
+                        flex: 4,
+                        child: Image.memory(
+                          imageBytes,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                        ),
+                      ),
+                      Container(
+                        width: double.infinity,
+                        color: Colors.black,
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.all(12),
+                        child: Text(
+                          "Dowry: ৳$dowryAmount",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      final result = await saveImage(imageBytes);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            result != null
-                                ? 'Poster saved to $result'
-                                : 'Failed to save poster',
-                          ),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.download),
-                    label: const Text("Download"),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      final result = await saveImage(imageBytes);
-                      if (result != null) {
-                        final params = ShareParams(
-                          text: 'Check out my dowry poster 😎',
-                          files: [XFile(result)],
-                        );
-                        final shareResult = await SharePlus.instance.share(
-                          params,
-                        );
-                        if (shareResult.status == ShareResultStatus.success) {
-                          debugPrint('Successfully shared the poster!');
-                        }
-                      }
-                    },
-                    icon: const Icon(Icons.share),
-                    label: const Text("Share"),
-                  ),
+                  ShareButtonWidget(controller: this),
+                  DLButton(controller: this),
                 ],
               ),
               const SizedBox(height: 8),
@@ -433,30 +418,6 @@ class HomeController extends GetxController {
         ),
       ),
     );
-  }
-
-  Future<String?> saveImage(Uint8List imageBytes) async {
-    try {
-      // Create a blob from the Uint8List
-      final blob = html.Blob([imageBytes], 'image/png');
-      final url = html.Url.createObjectUrlFromBlob(blob);
-
-      // Create a temporary anchor element to trigger download
-      final _ = html.AnchorElement(href: url)
-        ..setAttribute(
-          'download',
-          'dowry_poster_${DateTime.now().millisecondsSinceEpoch}.png',
-        )
-        ..click();
-
-      // Clean up
-      html.Url.revokeObjectUrl(url);
-      debugPrint("Image download triggered");
-      return url; // Return the URL for potential sharing
-    } catch (e) {
-      debugPrint("Error saving image: $e");
-      return null;
-    }
   }
 
   void trigger(BuildContext context) async {
@@ -611,5 +572,138 @@ class HomeController extends GetxController {
     dowry = dowry.clamp(-500000, 2000000); // -5 lakh to 20 lakh BDT
 
     return dowry;
+  }
+
+  Future<void> captureImage() async {
+    // Set state to show loading indicator
+    isCapturing = true;
+
+    try {
+      // Wait for the next frame to ensure rendering is complete
+      await Future.delayed(Duration.zero);
+      Uint8List? image = await screenshotController.capture();
+      if (image != null) {
+        capturedImage = image;
+        debugPrint('Image captured successfully');
+      } else {
+        debugPrint('Failed to capture image');
+      }
+    } catch (e) {
+      debugPrint('Error capturing image: $e');
+      capturedImage = null;
+    } finally {
+      // Ensure the loading state is turned off
+      isCapturing = false;
+    }
+  }
+
+  Future<void> shareImage() async {
+    await captureImage(); // Ensure the image is captured before sharing
+    if (capturedImage == null) {
+      debugPrint('No image to share');
+      return;
+    }
+
+    try {
+      // For web platform specifically
+      if (kIsWeb) {
+        try {
+          // Create a temp file for sharing
+          final xFile = XFile.fromData(
+            capturedImage!,
+            name: 'dowry_poster.png',
+            mimeType: 'image/png',
+          );
+
+          // Try using Web Share API
+          // ignore: deprecated_member_use
+          final shareResult = await Share.shareXFiles(
+            [xFile],
+            text:
+                'সংস্কারের লক্ষ্যে গঠিত জাতীয় ঐকমত্য কমিশন এর সুপারিশগুলোর বিষয়ে আপনার অবস্থান কোথায়? 🧐\nএকটা ছোট কুইজ দিচ্ছি, আপনার মতামতকে রাজনৈতিক দলগুলোর প্রস্তাবিত সংস্কারের সঙ্গে মিলিয়ে দেখুন।\nএই ছবিতে আমার রেজাল্ট! 🗳️\nআপনিও দেখে নিন আপনার অবস্থান 👉 https://sohomotvai.despicableapp.com/',
+            subject: 'সহমত ভাইয়ের সাথে দেখুন আপনি কোথায় দাঁড়িয়ে।',
+          );
+
+          debugPrint('Share result: ${shareResult.status}');
+        } catch (webError) {
+          debugPrint('Web Share API unavailable: $webError');
+          debugPrint('Falling back to download method');
+          downloadImage(); // Call your existing download method as fallback
+        }
+      }
+    } catch (e) {
+      debugPrint('Error sharing image: $e');
+
+      // Fallback for browsers that don't support Web Share API
+      if (kIsWeb) {
+        debugPrint('Sharing failed, attempting fallback download.');
+        downloadImage();
+      }
+    }
+  }
+
+  Future<void> downloadImage() async {
+    // Ensure the image is captured before downloading
+    await captureImage(); // Ensure the image is captured before downloading
+    // Check if an image has been captured
+    if (capturedImage == null) {
+      debugPrint('No image to download');
+      Get.snackbar(
+        'No Image Captured',
+        'Please capture an image first!',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    // Ensure this runs only on the web
+    if (kIsWeb) {
+      try {
+        // 1. Encode image bytes to Base64
+        final base64 = base64Encode(capturedImage!);
+
+        // 2. Create a data URL (RFC 2397)
+        final dataUrl = 'data:image/png;base64,$base64';
+
+        // 3. Create an invisible HTML anchor element (`<a>`)
+        final anchor = html.AnchorElement(href: dataUrl)
+          // 4. Set the 'download' attribute with a filename
+          ..setAttribute(
+            "download",
+            // Generate a somewhat unique filename
+            "dowry_poster_${DateTime.now().millisecondsSinceEpoch}.png",
+          );
+
+        // 5. Programmatically click the anchor to trigger the download
+        // Append to body, click, then remove is a common pattern,
+        // though sometimes direct click() works.
+        html.document.body?.append(anchor);
+        anchor.click();
+        anchor.remove(); // Clean up the element
+
+        debugPrint('Download initiated.');
+      } catch (e) {
+        debugPrint('Error initiating download: $e');
+        Get.snackbar(
+          'Download Error',
+          'Could not download image. Error: $e',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
+      }
+    } else {
+      debugPrint('Download function is intended for web only.');
+      // Optionally show a message on non-web platforms
+      Get.snackbar(
+        'Download Unavailable',
+        'This feature is only available on the web version.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+    }
   }
 }
