@@ -272,10 +272,10 @@ class HomeController extends GetxController {
     double parsedHeight = double.tryParse(height.value.text) ?? 152.4;
 
     // Clamp the value between 60 and 275
-    parsedHeight = parsedHeight.clamp(60.0, 275.0);
+    parsedHeight = parsedHeight.clamp(125.0, 205.0);
 
-    // Normalize: Map 60–275 to 0–20
-    double normalizedHeight = ((parsedHeight - 60) / (275 - 60)) * 20;
+    // Normalize: Map 125–205 to 0–20
+    double normalizedHeight = ((parsedHeight - 125) / (205 - 125)) * 20;
 
     manHeightInput?.value = normalizedHeight;
   }
@@ -287,7 +287,9 @@ class HomeController extends GetxController {
     // Calculate BMI
     double bmi = parsedWeight / pow((parsedHeight / 100), 2);
 
-    double temp_bmi = ((bmi - 18) / (25 - 18)) * (25 - 18);
+    bmi = bmi.clamp(15.0, 40.0); // Clamp BMI between 15 and 40
+
+    double temp_bmi = ((bmi - 15) / (40 - 15)) * (25);
 
     manBMIInput?.value = temp_bmi;
   }
@@ -303,28 +305,54 @@ class HomeController extends GetxController {
     double parsedSalary = double.tryParse(salary.text) ?? 5000;
 
     if (parsedSalary < 5000) {
-      statesTriggerChanged("0"); // khali ga
+      // Unemployed/Very Low Income - Naked
+      statesTriggerChanged("0"); // khali ga (naked)
       pantHeightInput?.value = 0;
-    } else if (parsedSalary >= 5000 && parsedSalary < 25000) {
-      statesTriggerChanged("1"); // sada genji
-      pantHeightInput?.value = 50;
-    } else if (parsedSalary >= 25000 && parsedSalary < 50000) {
-      statesTriggerChanged("1"); // sada genji
-      pantHeightInput?.value = 70;
+    } else if (parsedSalary >= 5000 && parsedSalary < 10000) {
+      // Very Low Income - Basic pants only
+      statesTriggerChanged("0"); // still naked torso
+      pantHeightInput?.value = 30;
       Future.delayed(const Duration(milliseconds: 10), () {
-        statesTriggerChanged("6"); // lal pant
+        statesTriggerChanged("5"); // blue white pant (basic pants)
       });
-    } else if (parsedSalary >= 50000 && parsedSalary < 100000) {
-      statesTriggerChanged("2"); // sada genji
-      pantHeightInput?.value = 100;
+    } else if (parsedSalary >= 10000 && parsedSalary < 20000) {
+      // Low Income - Basic white shirt only (no pants upgrade)
+      statesTriggerChanged("1"); // sendu (white shirt)
+      pantHeightInput?.value = 0; // no pants
+    } else if (parsedSalary >= 20000 && parsedSalary < 40000) {
+      // Lower Middle Class - White shirt + better pants
+      statesTriggerChanged("1"); // sendu (white shirt)
+      pantHeightInput?.value = 100; // maximum pant height
       Future.delayed(const Duration(milliseconds: 10), () {
-        statesTriggerChanged("4"); // lal pant
+        statesTriggerChanged("4"); // black pant (better quality)
+      });
+    } else if (parsedSalary >= 40000 && parsedSalary < 60000) {
+      // Middle Class - Brown shirt upgrade (keep black pants)
+      statesTriggerChanged("2"); // brown shirt
+      pantHeightInput?.value = 100; // maximum pant height
+      Future.delayed(const Duration(milliseconds: 10), () {
+        statesTriggerChanged("4"); // black pant
+      });
+    } else if (parsedSalary >= 60000 && parsedSalary < 80000) {
+      // Upper Middle Class - Brown shirt + better fitted pants
+      statesTriggerChanged("2"); // brown shirt
+      pantHeightInput?.value = 100; // maximum pant height
+      Future.delayed(const Duration(milliseconds: 10), () {
+        statesTriggerChanged("4"); // black pant (better fit)
+      });
+    } else if (parsedSalary >= 80000 && parsedSalary < 100000) {
+      // High Middle Class - Red shirt upgrade
+      statesTriggerChanged("3"); // red shirt
+      pantHeightInput?.value = 100; // maximum pant height
+      Future.delayed(const Duration(milliseconds: 10), () {
+        statesTriggerChanged("4"); // black pant
       });
     } else {
-      statesTriggerChanged("3"); // sada genji
-      pantHeightInput?.value = 100;
+      // Very High Income (>100k) - Red shirt + luxury pants
+      statesTriggerChanged("3"); // red shirt
+      pantHeightInput?.value = 100; // maximum pant height
       Future.delayed(const Duration(milliseconds: 10), () {
-        statesTriggerChanged("4"); // lal pant
+        statesTriggerChanged("6"); // red black pant (luxury)
       });
     }
   }
