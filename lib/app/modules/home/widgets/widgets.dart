@@ -13,6 +13,50 @@ class TitleWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        IconButton(
+          icon: Icon(
+            Icons.keyboard_arrow_left,
+            color: controller.primary,
+            size: 35,
+          ),
+          onPressed: () {
+            try {
+              controller.gotoPreviousPage();
+              if (controller.stateI.value > 0) {
+                controller.stateI.value = controller.stateI.value - 1;
+              }
+            } catch (e) {
+              debugPrint('Error navigating to previous page: $e');
+            }
+          },
+        ),
+
+        /// Expanded widget for title
+        Text(
+          'Grooms Information',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: controller.primary,
+          ),
+        ),
+        SizedBox(width: 35),
+      ],
+    );
+  }
+}
+
+class TitleWidgetDex extends StatelessWidget {
+  const TitleWidgetDex({super.key, required this.controller});
+
+  final HomeController controller;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -53,6 +97,28 @@ class TitleWidget extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class GroomAnimationMob extends StatelessWidget {
+  const GroomAnimationMob({super.key, required this.controller});
+
+  final HomeController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      flex: 3,
+      child: RepaintBoundary(
+        key: controller.artboardKey,
+        child: rive.RiveAnimation.asset(
+          'assets/rive/groom.riv',
+          fit: BoxFit.cover,
+          alignment: Alignment.center,
+          onInit: controller.onRiveInit,
+        ),
       ),
     );
   }

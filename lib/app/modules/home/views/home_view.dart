@@ -12,6 +12,7 @@ class HomeView extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: LayoutBuilder(
         builder: (context, constraints) {
           final screenWidth = constraints.maxWidth;
@@ -40,12 +41,13 @@ class HomeView extends GetView<HomeController> {
           width: double.infinity,
           height: MediaQuery.of(context).size.height,
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.center,
+          child: Column(
             children: [
-              GroomAnimation(controller: controller),
+              TitleWidget(controller: controller),
+              GroomAnimationMob(controller: controller),
+              // Container(width: 444, height: 5, color: Colors.black),
               InputterMob(controller: controller),
+              // Container(width: 444, height: 5, color: Colors.black),
             ],
           ),
         ),
@@ -71,7 +73,7 @@ class HomeView extends GetView<HomeController> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Inputter(controller: controller),
-              GroomAnimation(controller: controller),
+              GroomAnimationMob(controller: controller),
             ],
           ),
         ),

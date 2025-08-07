@@ -13,21 +13,14 @@ class InputterMob extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      flex: 3,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-        decoration: BoxDecoration(
-          color: controller.base_100,
-          borderRadius: BorderRadius.circular(controller.borderRadius),
-        ),
-        margin: EdgeInsets.all(controller.maRgin),
+      flex: 2,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 20.0, right: 20.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: [
-            TitleWidget(controller: controller),
-            SizedBox(height: 20),
             SizedBox(
               width: controller.fieldWidth.value + 40,
               height: 120,
@@ -46,8 +39,6 @@ class InputterMob extends StatelessWidget {
                 ],
               ),
             ),
-
-            SizedBox(height: 20),
             ProceedButton(controller: controller),
           ],
         ),
