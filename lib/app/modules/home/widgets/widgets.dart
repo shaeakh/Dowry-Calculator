@@ -819,7 +819,7 @@ class PosterWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   child: rive.RiveAnimation.asset(
                     'assets/rive/groom.riv',
-                    fit: BoxFit.cover,
+                    fit: BoxFit.fitHeight,
                     alignment: Alignment.center,
                     onInit: controller.onRiveInit,
                   ),
