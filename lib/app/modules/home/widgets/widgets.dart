@@ -36,7 +36,7 @@ class TitleWidget extends StatelessWidget {
 
         /// Expanded widget for title
         Text(
-          'Grooms Information',
+          'Grooms Info',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 24,
@@ -58,37 +58,40 @@ class TitleWidgetDex extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      // padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: controller.base_100.withAlpha(100),
         borderRadius: BorderRadius.circular(controller.borderRadius),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.max,
         children: [
-          IconButton(
-            icon: Icon(
-              Icons.keyboard_arrow_left,
-              color: controller.primary,
-              size: 35,
-            ),
-            onPressed: () {
-              try {
-                controller.gotoPreviousPage();
-                if (controller.stateI.value > 0) {
-                  controller.stateI.value = controller.stateI.value - 1;
+          Expanded(
+            child: IconButton(
+              icon: Icon(
+                Icons.keyboard_arrow_left,
+                color: controller.primary,
+                size: 35,
+              ),
+              onPressed: () {
+                try {
+                  controller.gotoPreviousPage();
+                  if (controller.stateI.value > 0) {
+                    controller.stateI.value = controller.stateI.value - 1;
+                  }
+                } catch (e) {
+                  debugPrint('Error navigating to previous page: $e');
                 }
-              } catch (e) {
-                debugPrint('Error navigating to previous page: $e');
-              }
-            },
+              },
+            ),
           ),
 
           /// Expanded widget for title
           Expanded(
             child: Text(
-              'Grooms Personal Information',
-              textAlign: TextAlign.center,
+              'Grooms Info',
+              textAlign: TextAlign.left,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -96,6 +99,7 @@ class TitleWidgetDex extends StatelessWidget {
               ),
             ),
           ),
+          Expanded(child: Container()),
         ],
       ),
     );
@@ -115,7 +119,7 @@ class GroomAnimationMob extends StatelessWidget {
         key: controller.artboardKey,
         child: rive.RiveAnimation.asset(
           'assets/rive/groom.riv',
-          fit: BoxFit.cover,
+          fit: BoxFit.fitHeight,
           alignment: Alignment.center,
           onInit: controller.onRiveInit,
         ),
@@ -178,7 +182,7 @@ class ProceedButton extends StatelessWidget {
           elevation: 5,
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(10),
           ),
         ),
         child: Text(

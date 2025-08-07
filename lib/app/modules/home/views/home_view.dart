@@ -72,7 +72,7 @@ class HomeView extends GetView<HomeController> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Inputter(controller: controller),
+              InputterDex(controller: controller),
               GroomAnimationMob(controller: controller),
             ],
           ),

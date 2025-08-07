@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import '../controllers/home_controller.dart';
 import 'widgets.dart';
 
-class Inputter extends StatelessWidget {
-  const Inputter({super.key, required this.controller});
+class InputterDex extends StatelessWidget {
+  const InputterDex({super.key, required this.controller});
 
   final HomeController controller;
 
@@ -26,7 +26,7 @@ class Inputter extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.max,
           children: [
-            TitleWidget(controller: controller),
+            TitleWidgetDex(controller: controller),
             SizedBox(height: 20),
             SizedBox(
               width: controller.fieldWidth.value + 40,
